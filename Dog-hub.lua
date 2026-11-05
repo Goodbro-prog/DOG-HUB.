@@ -1,8 +1,8 @@
 --[[
     DOG HUB
-    Version: 1.0
-    Interface: Mobile
-    Theme: Purple / Black
+    Version: 1.1
+    Mobile Interface
+    Purple / Black
 ]]
 
 local Players = game:GetService("Players")
@@ -47,7 +47,6 @@ Header.Parent = Main
 Instance.new("UICorner", Header).CornerRadius =
     UDim.new(0, 10)
 
--- Conteúdo
 local Content = Instance.new("ScrollingFrame")
 Content.Position = UDim2.fromOffset(115, 52)
 Content.Size = UDim2.new(1, -125, 1, -62)
@@ -55,6 +54,7 @@ Content.BackgroundColor3 = Panel
 Content.BorderSizePixel = 0
 Content.ScrollBarThickness = 3
 Content.ScrollBarImageColor3 = Purple
+Content.CanvasSize = UDim2.new(0, 0, 0, 0)
 Content.Parent = Main
 
 local Layout = Instance.new("UIListLayout")
@@ -85,8 +85,10 @@ local function Label(text)
     L.Font = Enum.Font.GothamBold
     L.TextSize = 12
     L.Parent = Content
+
     Instance.new("UICorner", L).CornerRadius =
         UDim.new(0, 6)
+
     return L
 end
 
@@ -104,25 +106,31 @@ local function Button(text, callback)
         UDim.new(0, 6)
 
     B.MouseButton1Click:Connect(callback or function() end)
+
     return B
 end
 
+-- TOGGLE CORRIGIDO
 local function Toggle(text, callback)
     local enabled = false
+    local B
 
-    local B = Button(text .. ": OFF", function()
+    B = Button(text .. ": OFF", function()
         enabled = not enabled
+
         B.Text = text .. (enabled and ": ON" or ": OFF")
+
         B.BackgroundColor3 = enabled and Purple or
             Color3.fromRGB(55, 30, 85)
 
-        if callback then callback(enabled) end
+        if callback then
+            callback(enabled)
+        end
     end)
 
     return B
 end
 
--- Abas
 local Pages = {
     "Home",
     "Player",
@@ -133,16 +141,17 @@ local Pages = {
 
 local function Clear()
     for _, v in ipairs(Content:GetChildren()) do
-        if v:IsA("GuiObject") and
-            v ~= Layout and v ~= Padding then
+        if v:IsA("GuiObject")
+        and v ~= Layout
+        and v ~= Padding then
             v:Destroy()
         end
     end
 end
 
 local function Home()
-    Label("🏠 HOME")
-    Label("DOG HUB - Version 1.0")
+    Label("HOME")
+    Label("DOG HUB - Version 1.1")
     Label("Player: " .. Player.Name)
 
     local TimeLabel = Label("Tempo: 0 segundos")
@@ -175,50 +184,50 @@ local function Home()
 end
 
 local function PlayerPage()
-    Label("👤 PLAYER")
+    Label("PLAYER")
 
-    Toggle("Infinite Jump")
-    Toggle("Speed Boost")
+    Toggle("Infinite Jump - teste")
+    Toggle("Speed Boost - teste")
     Label("Speed máximo configurável: 1000")
-
     Toggle("Invisibilidade - teste")
     Toggle("Hit Aura - teste")
     Toggle("Anti Hit Guard - teste")
 end
 
 local function MainPage()
-    Label("🥚 MAIN")
+    Label("MAIN")
 
-    Toggle("Auto Steal - teste")
-    Toggle("Instant Steal - teste")
+    Toggle("Auto Steal - integração pendente")
+    Toggle("Instant Steal - integração pendente")
     Toggle("Glide - teste")
     Toggle("Movimento normal")
 
     Label("Seleção de ovos")
-    Button("Selecionar ovos - integração pendente")
-
+    Button("Selecionar ovos - pendente")
     Toggle("Auto Steal selecionados")
 
     Label("Seleção de área")
-    Button("Selecionar área - integração pendente")
+    Button("Selecionar área - pendente")
 end
 
 local function Settings()
-    Label("⚙ SETTINGS")
+    Label("SETTINGS")
 
     Toggle("Anti Lag")
     Toggle("Otimização")
 
     Button("Server Hop - integração pendente")
-    Button("Salvar configurações")
+    Button("Salvar configurações", function()
+        print("Configurações da interface")
+    end)
 end
 
 local function Credits()
-    Label("⭐ CREDITS")
+    Label("CREDITS")
     Label("DOG HUB")
     Label("Criador: DOG HUB Team")
     Label("Interface: Purple Edition")
-    Label("Versão: 1.0")
+    Label("Versão: 1.1")
     Label("Obrigado por utilizar!")
 end
 
@@ -229,6 +238,8 @@ local Functions = {
     Settings = Settings,
     Credits = Credits
 }
+
+local TabButtons = {}
 
 for i, name in ipairs(Pages) do
     local B = Instance.new("TextButton")
@@ -244,8 +255,11 @@ for i, name in ipairs(Pages) do
     Instance.new("UICorner", B).CornerRadius =
         UDim.new(0, 7)
 
+    TabButtons[#TabButtons + 1] = B
+
     B.MouseButton1Click:Connect(function()
         Clear()
+        Content.CanvasPosition = Vector2.new(0, 0)
         Functions[name]()
     end)
 end
@@ -259,18 +273,22 @@ Minimize.Text = "-"
 Minimize.TextColor3 = White
 Minimize.Parent = Main
 
-Minimize.MouseButton1Click:Connect(function()
-    Content.Visible = not Content.Visible
+local minimized = false
 
-    for _, v in ipairs(Main:GetChildren()) do
-        if v:IsA("TextButton") and v ~= Minimize then
-            v.Visible = Content.Visible
-        end
+Minimize.MouseButton1Click:Connect(function()
+    minimized = not minimized
+
+    Content.Visible = not minimized
+
+    for _, B in ipairs(TabButtons) do
+        B.Visible = not minimized
     end
 
-    Main.Size = Content.Visible
-        and UDim2.fromOffset(340, 310)
-        or UDim2.fromOffset(340, 45)
+    Main.Size = minimized
+        and UDim2.fromOffset(340, 45)
+        or UDim2.fromOffset(340, 310)
+
+    Minimize.Text = minimized and "+" or "-"
 end)
 
 -- Arrastar
@@ -281,6 +299,7 @@ local startPosition
 Header.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Touch
     or input.UserInputType == Enum.UserInputType.MouseButton1 then
+
         dragging = true
         dragStart = input.Position
         startPosition = Main.Position
@@ -292,6 +311,7 @@ UIS.InputChanged:Connect(function(input)
         input.UserInputType == Enum.UserInputType.Touch
         or input.UserInputType == Enum.UserInputType.MouseMovement
     ) then
+
         local delta = input.Position - dragStart
 
         Main.Position = UDim2.new(
@@ -312,4 +332,4 @@ end)
 
 Home()
 
-print("DOG HUB carregado!")
+print("DOG HUB V1.1 carregado!")
