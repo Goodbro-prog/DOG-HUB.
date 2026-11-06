@@ -1,0 +1,72 @@
+-- [[ ECLIPSE HUB - STEAL AN EGG ]] --
+
+local OrionLib = loadstring(game:HttpGet(('https://githubusercontent.com')))()
+local Window = OrionLib:MakeWindow({Name = "🌘 Eclipse Hub | Steal an Egg", HidePremium = false, SaveConfig = true, ConfigFolder = "EclipseHubConfig"})
+
+-- Variaveis dos Toggles
+getgenv().AutoSteal = false
+getgenv().InstantSteal = false
+
+-- [[ ABA HOME ]] --
+local HomeTab = Window:MakeTab({
+	Name = "Home",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+HomeTab:AddLabel("Bem-vindo ao Eclipse Hub!")
+HomeTab:AddLabel("Criado por: Goodbro-prog")
+HomeTab:AddLabel("Status: 🟢 Funcional")
+
+-- [[ ABA MAIN ]] --
+local MainTab = Window:MakeTab({
+	Name = "Steal Functions",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+-- Toggle para Auto Steal
+MainTab:AddToggle({
+	Name = "Auto Steal",
+	Default = false,
+	Callback = function(Value)
+		getgenv().AutoSteal = Value
+		
+		spawn(function()
+			while getgenv().AutoSteal do
+				-- O codigo do jogo para roubar o ovo entra aqui depois
+				print("Auto Steal Ativado")
+				task.wait(0.5)
+			end
+		end)
+	end    
+})
+
+-- Toggle para Instant Steal
+MainTab:AddToggle({
+	Name = "Instant Steal",
+	Default = false,
+	Callback = function(Value)
+		getgenv().InstantSteal = Value
+		
+		spawn(function()
+			while getgenv().InstantSteal do
+				-- O codigo do jogo para roubo instantaneo entra aqui depois
+				print("Instant Steal Ativado")
+				task.wait(0.1)
+			end
+		end)
+	end    
+})
+
+-- [[ ABA CREDITS ]] --
+local CreditsTab = Window:MakeTab({
+	Name = "Credits",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+CreditsTab:AddLabel("Dono: Goodbro-prog")
+CreditsTab:AddLabel("Suporte: Delta Executor")
+
+OrionLib:Init()
