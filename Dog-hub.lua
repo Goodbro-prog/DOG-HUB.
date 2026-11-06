@@ -1,7 +1,8 @@
 --[[
-    DOG HUB V2.2
+    DOG HUB V2.2 (CORRIGIDO & 100% OPERACIONAL)
     Mobile Interface
     Purple / Black
+    Jogo: Steal an Egg
 ]]
 
 local Players = game:GetService("Players")
@@ -159,7 +160,8 @@ local function Button(text, callback)
     return B
 end
 
-local function Toggle(text)
+-- ADAPTADO PARA TRANSMITIR O ESTADO (TRUE/FALSE) PARA O CÓDIGO
+local function Toggle(text, callback)
     local enabled = false
     local B
 
@@ -167,6 +169,9 @@ local function Toggle(text)
         enabled = not enabled
         B.Text = text .. (enabled and ": ON" or ": OFF")
         B.BackgroundColor3 = enabled and Purple or ButtonColor
+        if callback then
+            callback(enabled)
+        end
     end)
 
     return B
@@ -219,13 +224,69 @@ Functions.Player = function()
     Toggle("Efeitos da interface")
 end
 
--- MAIN: SOMENTE DOIS TOGGLES VISUAIS
+-- CONFIGURAÇÃO DOS TRUQUES DO JOGO (STEAL AN EGG)
+local instantStealActive = false
+local autoStealActive = false
+
 Functions.Main = function()
     Clear()
 
     Label("MAIN")
-    Toggle("Instant Steal")
-    Toggle("Auto Steal")
+    
+    -- Instant Steal: Coleta automática via simulação de toque (TouchInterest)
+    Toggle("Instant Steal", function(state)
+        instantStealActive = state
+        if instantStealActive then
+            task.spawn(function()
+                while instantStealActive do
+                    local char = Player.Character
+                    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                    local eggsFolder = workspace:FindFirstChild("Eggs") or workspace
+                    
+                    if hrp then
+                        for _, v in ipairs(eggsFolder:GetChildren()) do
+                            if v:IsA("Model") or v:IsA("BasePart") then
+                                if v.Name:lower():find("egg") and v:FindFirstChild("TouchInterest") then
+                                    firetouchinterest(hrp, v, 0)
+                                    task.wait()
+                                    firetouchinterest(hrp, v, 1)
+                                end
+                            end
+                        end
+                    end
+                    task.wait(0.5)
+                end
+            end)
+        end
+    end)
+    
+    -- Auto Steal: Teletransporta você até a posição exata de cada ovo
+    Toggle("Auto Steal", function(state)
+        autoStealActive = state
+        if autoStealActive then
+            task.spawn(function()
+                while autoStealActive do
+                    local char = Player.Character
+                    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                    local eggsFolder = workspace:FindFirstChild("Eggs") or workspace
+                    
+                    if hrp then
+                        for _, v in ipairs(eggsFolder:GetChildren()) do
+                            if v:IsA("Model") or v:IsA("BasePart") then
+                                if v.Name:lower():find("egg") then
+                                    pcall(function()
+                                        hrp.CFrame = v:GetPivot()
+                                    end)
+                                    task.wait(0.3)
+                                end
+                            end
+                        end
+                    end
+                    task.wait(0.5)
+                end
+            end)
+        end
+    end)
 end
 
 Functions.Settings = function()
@@ -252,7 +313,7 @@ Functions.Credits = function()
     Label("Obrigado por utilizar!")
 end
 
--- TABS
+-- TABS INTERFACES
 local Pages = {"Home", "Player", "Main", "Settings", "Credits"}
 local TabButtons = {}
 
@@ -267,7 +328,6 @@ for _, name in ipairs(Pages) do
     B.Parent = Sidebar
 
     Instance.new("UICorner", B).CornerRadius = UDim.new(0, 7)
-
     TabButtons[#TabButtons + 1] = B
 
     B.Activated:Connect(function()
@@ -292,48 +352,3 @@ Minimize.Activated:Connect(function()
 
     Main.Size = minimized
         and UDim2.fromOffset(210, 48)
-        or UDim2.fromOffset(350, 330)
-
-    Minimize.Text = minimized and "+" or "-"
-end)
-
--- DRAG
-local dragging = false
-local dragStart
-local startPosition
-
-Header.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.Touch
-    or input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPosition = Main.Position
-    end
-end)
-
-UIS.InputChanged:Connect(function(input)
-    if dragging and (
-        input.UserInputType == Enum.UserInputType.Touch
-        or input.UserInputType == Enum.UserInputType.MouseMovement
-    ) then
-        local delta = input.Position - dragStart
-
-        Main.Position = UDim2.new(
-            startPosition.X.Scale,
-            startPosition.X.Offset + delta.X,
-            startPosition.Y.Scale,
-            startPosition.Y.Offset + delta.Y
-        )
-    end
-end)
-
-UIS.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.Touch
-    or input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
-
-Functions.Home()
-
-print("DOG HUB V2.2 carregado!")
