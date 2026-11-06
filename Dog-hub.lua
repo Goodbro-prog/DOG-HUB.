@@ -1,6 +1,5 @@
-
 --[[
-    DOG HUB V2.1
+    DOG HUB V2.2
     Mobile Interface
     Purple / Black
 ]]
@@ -16,9 +15,6 @@ local Dark = Color3.fromRGB(15, 12, 22)
 local Panel = Color3.fromRGB(28, 22, 38)
 local White = Color3.fromRGB(255, 255, 255)
 local ButtonColor = Color3.fromRGB(55, 30, 85)
-
-local SelectedEgg = "Nenhum"
-local SelectedArea = "Nenhuma"
 
 local GUI = Instance.new("ScreenGui")
 GUI.Name = "DOG_HUB"
@@ -182,8 +178,7 @@ local Functions = {}
 Functions.Home = function()
     Clear()
 
-    Label("HOME")
-    Label("DOG HUB - Version 2.1")
+    Label("DOG HUB - Version 2.2")
     Label("Player: " .. Player.Name)
 
     local TimeLabel = Label("Tempo: 0 segundos")
@@ -224,43 +219,13 @@ Functions.Player = function()
     Toggle("Efeitos da interface")
 end
 
+-- MAIN: SOMENTE DOIS TOGGLES VISUAIS
 Functions.Main = function()
     Clear()
 
     Label("MAIN")
-    Label("SELEÇÃO DE OVOS")
-    Label("Selecionado: " .. SelectedEgg)
-
-    for _, egg in ipairs({
-        "Ovo comum",
-        "Ovo raro",
-        "Ovo lendário"
-    }) do
-        Button(egg, function()
-            SelectedEgg = egg
-            Functions.Main()
-        end)
-    end
-
-    Label("SELEÇÃO DE ÁREA")
-    Label("Selecionada: " .. SelectedArea)
-
-    for _, area in ipairs({
-        "Área 1",
-        "Área 2",
-        "Área 3"
-    }) do
-        Button(area, function()
-            SelectedArea = area
-            Functions.Main()
-        end)
-    end
-
-    Button("Limpar seleções", function()
-        SelectedEgg = "Nenhum"
-        SelectedArea = "Nenhuma"
-        Functions.Main()
-    end)
+    Toggle("Instant Steal")
+    Toggle("Auto Steal")
 end
 
 Functions.Settings = function()
@@ -283,7 +248,7 @@ Functions.Credits = function()
     Label("DOG HUB")
     Label("Criador: DOG HUB Team")
     Label("Interface: Purple Edition")
-    Label("Versão: 2.1")
+    Label("Versão: 2.2")
     Label("Obrigado por utilizar!")
 end
 
@@ -371,5 +336,4 @@ end)
 
 Functions.Home()
 
-print("DOG HUB V2.1 carregado!")
-
+print("DOG HUB V2.2 carregado!")
